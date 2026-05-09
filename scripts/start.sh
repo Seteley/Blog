@@ -21,7 +21,7 @@ chown postgres:postgres /var/log/postgresql.log
 # Inicializar cluster solo si es la primera vez
 if [ ! -f "${PG_DATA}/PG_VERSION" ]; then
     echo ">>> Inicializando cluster PostgreSQL..."
-    su postgres -c "$INITDB -D $PG_DATA --auth=trust --no-instructions -q"
+    su postgres -c "$INITDB -D $PG_DATA --auth=trust --no-instructions"
 fi
 
 # Arrancar PostgreSQL en background (como usuario postgres)
