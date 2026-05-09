@@ -1,83 +1,55 @@
-from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 import psycopg2.extensions
 
-from database.connection import get_connection
-from models.article import Article
+from models.article import ArticleCreate, ArticleResponse
 
 
-# --- Interfaz (Principio de Inversión de Dependencias) ---
-
-class IArticleRepository(ABC):
-
-    @abstractmethod
-    def get_all(self) -> List[Article]:
-        ...
-
-    @abstractmethod
-    def get_by_id(self, article_id: int) -> Optional[Article]:
-        ...
-
-    @abstractmethod
-    def create(self, title: str, content: str) -> Article:
-        ...
-
-
-# --- Implementación concreta con SQL puro (estilo ADO.NET) ---
-
-class ArticleRepository(IArticleRepository):
+class ArticleRepository:
     """
-    Accede a PostgreSQL mediante psycopg2 con SQL puro.
-    El mapeo cursor-row -> dominio se realiza manualmente (_map_row).
-    No depende de ningún ORM.
+    DAL — acceso a PostgreSQL con SQL puro y mapeo manual de filas.
+    Recibe la conexión por inyección desde la capa de DI.
     """
 
-    def get_all(self) -> List[Article]:
-        sql = """
-            SELECT id, title, content, created_at
-            FROM   articles
-            ORDER  BY created_at DESC
-        """
-        with get_connection() as conn:
-            cursor: psycopg2.extensions.cursor = conn.cursor()
-            cursor.execute(sql)
-            rows = cursor.fetchall()
-            return [self._map_row(row) for row in rows]
+    def __init__(self, conn: psycopg2.extensions.connection) -> None:
+        self._conn = conn
 
-    def get_by_id(self, article_id: int) -> Optional[Article]:
-        sql = """
-            SELECT id, title, content, created_at
-            FROM   articles
-            WHERE  id = %s
-        """
-        with get_connection() as conn:
-            cursor: psycopg2.extensions.cursor = conn.cursor()
-            cursor.execute(sql, (article_id,))
-            row = cursor.fetchone()
-            return self._map_row(row) if row else None
+    def get_all(self) -> List[ArticleResponse]:
+        with self._conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, title, content, created_at FROM articles ORDER BY created_at DESC"
+            )
+            return [self._map_row(row) for row in cursor.fetchall()]
 
-    def create(self, title: str, content: str) -> Article:
-        # RETURNING devuelve la fila recién insertada (equivalente a OUTPUT INSERTED.* en SQL Server)
-        sql = """
-            INSERT INTO articles (title, content, created_at)
-            VALUES (%s, %s, NOW())
-            RETURNING id, title, content, created_at
-        """
-        with get_connection() as conn:
-            cursor: psycopg2.extensions.cursor = conn.cursor()
-            cursor.execute(sql, (title, content))
-            row = cursor.fetchone()
-            return self._map_row(row)
+    def create(self, article: ArticleCreate) -> ArticleResponse:
+        with self._conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO articles (title, content)
+                VALUES (%s, %s)
+                RETURNING id, title, content, created_at
+                """,
+                (article.title.strip(), article.content.strip()),
+            )
+            return self._map_row(cursor.fetchone())
 
-    # ------------------------------------------------------------------ #
-    # Mapeo manual tuple -> objeto de dominio
-    # ------------------------------------------------------------------ #
+    def init_db(self) -> None:
+        with self._conn.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS articles (
+                    id         SERIAL       PRIMARY KEY,
+                    title      VARCHAR(200) NOT NULL,
+                    content    TEXT         NOT NULL,
+                    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+                )
+                """
+            )
 
     @staticmethod
-    def _map_row(row: tuple) -> Article:
-        return Article(
+    def _map_row(row: tuple) -> ArticleResponse:
+        return ArticleResponse(
             id=int(row[0]),
             title=str(row[1]),
             content=str(row[2]),
