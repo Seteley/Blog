@@ -1,0 +1,38 @@
+# Control de versiones
+.git
+.gitignore
+
+# Entornos virtuales
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+
+# Variables de entorno locales (nunca al contenedor)
+.env
+.env.local
+.env.*.local
+
+# Documentación y scripts no necesarios en runtime
+*.md
+*.sql
+
+# Tests (si los hubiera)
+tests/
+pytest.ini
+.pytest_cache
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore

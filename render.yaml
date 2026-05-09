@@ -1,0 +1,44 @@
+# render.yaml — Blueprint de Render.com
+# Docs: https://render.com/docs/blueprint-spec
+#
+# PostgreSQL administrado por Render (plan free disponible).
+# Las variables DB_* se inyectan automáticamente desde el bloque "databases".
+
+services:
+
+  # ── API FastAPI (Web Service público) ─────────────────────────────────────────
+  - type: web
+    name: blog-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: blog-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: blog-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: blog-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: blog-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: blog-db
+          property: password
+
+# ── PostgreSQL administrado ────────────────────────────────────────────────────
+databases:
+  - name: blog-db
+    databaseName: blogdb
+    plan: free
+    region: oregon
