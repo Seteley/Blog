@@ -99,6 +99,41 @@ const formattedDate = new Date(frontmatter.date).toLocaleDateString('es-MX', {
       color: var(--muted);
       margin: 1.5rem 0;
     }
+
+    .article-body :global(table) {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.92rem;
+      overflow-x: auto;
+      display: block;
+    }
+
+    .article-body :global(th),
+    .article-body :global(td) {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.9rem;
+      text-align: left;
+    }
+
+    .article-body :global(th) {
+      background: var(--surface);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .article-body :global(tr:nth-child(even)) {
+      background: #f8fafc;
+    }
+
+    .article-body :global(.mermaid) {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      text-align: center;
+    }
   </style>
 
   <div class="breadcrumb">
@@ -114,4 +149,19 @@ const formattedDate = new Date(frontmatter.date).toLocaleDateString('es-MX', {
   <div class="article-body">
     <slot />
   </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    document.querySelectorAll('pre > code.language-mermaid').forEach(block => {
+      const pre = block.parentElement;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      pre.replaceWith(div);
+    });
+
+    await mermaid.run();
+  </script>
 </Layout>
