@@ -1,3 +1,10 @@
+---
+layout: ../../layouts/ArticleLayout.astro
+title: "Alfresco vs. Amazon S3: Análisis de Operaciones por Segundo (OPS) e I/O"
+description: "Comparativa técnica de rendimiento entre Alfresco Content Services y Amazon S3, enfocada en operaciones por segundo y perfil de I/O."
+date: "2026-06-24"
+---
+
 # Alfresco vs. Amazon S3: Análisis de Operaciones por Segundo (OPS) e I/O
 
 > Documento técnico comparativo · Junio 2026
