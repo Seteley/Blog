@@ -16,13 +16,13 @@ const { title } = Astro.props;
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg: #0f172a;
-        --surface: #1e293b;
-        --border: #334155;
-        --accent: #38bdf8;
-        --accent-dark: #0284c7;
-        --text: #e2e8f0;
-        --muted: #94a3b8;
+        --bg: #ffffff;
+        --surface: #f8fafc;
+        --border: #e2e8f0;
+        --accent: #6366f1;
+        --accent-dark: #4f46e5;
+        --text: #1e293b;
+        --muted: #64748b;
         --font: 'Segoe UI', system-ui, sans-serif;
       }
 
@@ -80,14 +80,6 @@ const { title } = Astro.props;
         padding: 2rem 1.5rem;
       }
 
-      footer {
-        background: var(--surface);
-        border-top: 1px solid var(--border);
-        text-align: center;
-        padding: 1rem;
-        color: var(--muted);
-        font-size: 0.85rem;
-      }
     </style>
   </head>
   <body>
@@ -103,8 +95,6 @@ const { title } = Astro.props;
     <main>
       <slot />
     </main>
-    <footer>
-      © 2025 Sergio Tejeda · Blog académico
-    </footer>
+
   </body>
 </html>
